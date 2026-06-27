@@ -1,0 +1,19 @@
+node_modules/
+dist/
+coverage/
+.DS_Store
+
+# Local runtime state. Never commit budget caches, audit logs, or secrets.
+.runtime/
+.env
+.env.*
+!.env.example
+.actualrc
+.actualrc.*
+actual.config.*
+*secret*
+*password*
+*.pem
+*.key
+*.p12
+

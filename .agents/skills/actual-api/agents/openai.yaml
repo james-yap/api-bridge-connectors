@@ -1,0 +1,4 @@
+interface:
+  display_name: "Actual API"
+  short_description: "Use the Actual Budget connector safely."
+  default_prompt: "Use the Actual API connector to inspect or import Actual Budget transactions with audit logging."

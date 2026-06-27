@@ -1,0 +1,19 @@
+{
+  "name": "api-bridge-connectors",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Provider-agnostic connector CLIs for LLM agents.",
+  "license": "MIT",
+  "type": "module",
+  "workspaces": [
+    "actual-api"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
+

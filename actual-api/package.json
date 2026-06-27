@@ -1,0 +1,28 @@
+{
+  "name": "@api-bridge-connectors/actual-api",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Actual Budget JSON CLI for agent-safe reads, imports, and audit logging.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "actual-api": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "cli": "tsx src/cli.ts",
+    "test": "vitest run --configLoader runner"
+  },
+  "dependencies": {
+    "@actual-app/api": "^26.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.8.0",
+    "vitest": "^3.2.0"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
