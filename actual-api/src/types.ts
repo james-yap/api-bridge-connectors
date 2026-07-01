@@ -19,6 +19,7 @@ export type ConnectorTransactionInput = {
   importedId?: string;
   id?: string;
   cleared?: boolean;
+  forceAdd?: boolean;
   source?: string;
   rawSourceId?: string;
 };
@@ -33,6 +34,7 @@ export type ActualImportTransaction = {
   notes?: string;
   imported_id: string;
   cleared?: boolean;
+  forceAddTransaction?: boolean;
 };
 
 export type ImportMode = 'dry-run' | 'commit';
@@ -46,4 +48,3 @@ export type ImportResult = {
   preview: unknown;
   commit?: unknown;
 };
-

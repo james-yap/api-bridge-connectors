@@ -42,4 +42,6 @@ Input transactions use decimal amounts:
 ]
 ```
 
+Set `"forceAdd": true` only when an authoritative source confirms a distinct transaction and Actual's dry-run preview would otherwise ignore it because of fuzzy matching.
+
 Audit logs are local JSONL files outside the repo by default. They are hash-chained per file and record dry runs, commits, results, and sanitized transaction summaries.
