@@ -17,6 +17,12 @@ Use this skill from the `api-bridge-connectors` repo when a task needs Actual Bu
 - Use per-transaction `forceAdd: true` only when an authoritative source confirms a distinct row and a dry run shows Actual's fuzzy matcher would otherwise ignore it.
 - Treat audit logs as local private state. Do not commit them.
 
+## Connector Evolution
+
+- When the connector needs a patch to complete the task safely, make the patch directly after normal scope, secret, and validation checks; do not stop for confirmation solely because the connector is evolving.
+- Report the changed behavior, validation, and publish result to James at the end.
+- Commit on `main` and push to `origin/main`; do not open PRs unless James explicitly asks.
+
 ## Commands
 
 Read reference details only when needed: `references/actual-api-contract.md`.
