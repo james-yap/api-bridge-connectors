@@ -39,6 +39,39 @@ describe('normalizeTransactions', () => {
       }),
     ).toThrow('Invalid calendar date');
   });
+
+  test('omits undefined optional import fields', () => {
+    const [transaction] = normalizeTransactions({
+      accountId: 'acct-1',
+      categories: [],
+      sourcePrefix: 'test',
+      transactions: [{ date: '2026-06-27', amountCents: -330, description: 'Presto Fare' }]
+    });
+
+    expect(transaction).not.toHaveProperty('category');
+    expect(transaction).not.toHaveProperty('cleared');
+    expect(transaction).not.toHaveProperty('notes');
+    expect(JSON.stringify(transaction)).not.toContain('undefined');
+  });
+
+  test('passes through explicit force-add intent', () => {
+    const [transaction] = normalizeTransactions({
+      accountId: 'acct-1',
+      categories: [],
+      sourcePrefix: 'test',
+      transactions: [
+        {
+          date: '2026-06-27',
+          amountCents: -660,
+          description: 'Presto Fare',
+          importedId: 'bank-2',
+          forceAdd: true
+        }
+      ]
+    });
+
+    expect(transaction.forceAddTransaction).toBe(true);
+  });
 });
 
 describe('amountToCents', () => {
@@ -46,4 +79,3 @@ describe('amountToCents', () => {
     expect(amountToCents({ date: '2026-06-27', amount: 1.99, amountCents: 250 })).toBe(250);
   });
 });
-

@@ -28,5 +28,24 @@ describe('audit', () => {
     const result = await verifyAuditFile(path.join(dir, file));
     expect(result).toEqual({ ok: true, checked: 2 });
   });
-});
 
+  test('continues the hash chain after a legacy line containing undefined', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'actual-api-audit-'));
+    const file = path.join(dir, `actual-api-${new Date().toISOString().slice(0, 7)}.jsonl`);
+    await fs.writeFile(
+      file,
+      '{"eventHash":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","details":{"cleared":undefined}}\n',
+    );
+
+    const event = await appendAuditEvent(dir, {
+      actor: 'test',
+      connector: 'actual-api',
+      command: 'import-transactions',
+      mode: 'dry-run',
+      status: 'started',
+      details: { ok: true }
+    });
+
+    expect(event.previousEventHash).toBe('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+  });
+});

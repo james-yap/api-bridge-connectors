@@ -46,6 +46,10 @@ function importedId(input: ConnectorTransactionInput, sourcePrefix: string): str
   return `${sourcePrefix}:sha256:${hashJson(input as unknown as JsonValue).slice(0, 32)}`;
 }
 
+function omitUndefined<T extends Record<string, unknown>>(value: T): T {
+  return Object.fromEntries(Object.entries(value).filter(([, item]) => item !== undefined)) as T;
+}
+
 export function normalizeTransactions(args: {
   accountId: string;
   categories: Category[];
@@ -56,7 +60,7 @@ export function normalizeTransactions(args: {
     assertDate(input.date);
     const payeeName = input.payeeName ?? input.description;
     if (!payeeName || !payeeName.trim()) throw new Error('Each transaction needs description or payeeName.');
-    return {
+    return omitUndefined({
       account: args.accountId,
       date: input.date,
       amount: amountToCents(input),
@@ -65,8 +69,9 @@ export function normalizeTransactions(args: {
       category: findCategoryId(args.categories, input),
       notes: input.notes,
       imported_id: importedId(input, args.sourcePrefix),
-      cleared: input.cleared
-    };
+      cleared: input.cleared,
+      forceAddTransaction: input.forceAdd ? true : undefined
+    }) as ActualImportTransaction;
   });
 }
 
@@ -77,7 +82,7 @@ export function sanitizedTransactionSummary(transaction: ConnectorTransactionInp
     importedId: transaction.importedId ?? transaction.id ?? transaction.rawSourceId ?? null,
     payee: transaction.payeeName ?? transaction.description ?? null,
     category: transaction.category ?? transaction.categoryId ?? null,
+    forceAdd: transaction.forceAdd === true,
     notesHash: notesHash(transaction.notes)
   };
 }
-

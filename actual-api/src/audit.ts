@@ -33,10 +33,20 @@ async function lastEventHash(file: string): Promise<string | null> {
       .filter(Boolean)
       .at(-1);
     if (!last) return null;
-    const parsed = JSON.parse(last) as { eventHash?: string };
+    const parsed = parseAuditLineForPreviousHash(last);
     return typeof parsed.eventHash === 'string' ? parsed.eventHash : null;
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') return null;
+    throw error;
+  }
+}
+
+function parseAuditLineForPreviousHash(line: string): { eventHash?: string } {
+  try {
+    return JSON.parse(line) as { eventHash?: string };
+  } catch (error) {
+    const eventHash = line.match(/"eventHash":"([a-f0-9]{64})"/i)?.[1];
+    if (eventHash) return { eventHash };
     throw error;
   }
 }
@@ -83,4 +93,3 @@ export async function verifyAuditFile(file: string): Promise<{ ok: boolean; chec
   }
   return { ok: true, checked };
 }
-

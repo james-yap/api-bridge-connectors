@@ -14,6 +14,7 @@ Use this skill from the `api-bridge-connectors` repo when a task needs Actual Bu
 - For transaction imports, run `import-transactions --dry-run` first. Commit only after validation has no errors and the user or saved automation policy allows it.
 - Use stable source-derived `importedId` values. Do not use random IDs when the same source transaction may appear again.
 - Resolve categories from existing Actual categories. Leave category blank when unsure; do not create categories during sync unless explicitly asked.
+- Use per-transaction `forceAdd: true` only when an authoritative source confirms a distinct row and a dry run shows Actual's fuzzy matcher would otherwise ignore it.
 - Treat audit logs as local private state. Do not commit them.
 
 ## Commands
@@ -31,4 +32,3 @@ npm --workspace actual-api run cli -- import-transactions --account "<account>" 
 ```
 
 When evolving this connector, update this skill in the same change if command behavior, auth, audit, or input schema changes.
-
