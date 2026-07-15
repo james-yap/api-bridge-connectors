@@ -3,10 +3,12 @@ import { hashJson } from './hash.js';
 import { notesHash } from './audit.js';
 
 type Category = { id: string; name: string; hidden?: boolean };
+type AmountInput = Pick<ConnectorTransactionInput, 'amount' | 'amountCents'>;
+type ImportedIdInput = Pick<ConnectorTransactionInput, 'importedId' | 'id' | 'rawSourceId'>;
 
 const datePattern = /^\d{4}-\d{2}-\d{2}$/;
 
-function assertDate(value: string): void {
+export function assertDate(value: string): void {
   if (!datePattern.test(value)) throw new Error(`Invalid date ${value}; expected YYYY-MM-DD.`);
   const parsed = new Date(`${value}T00:00:00Z`);
   if (Number.isNaN(parsed.valueOf()) || parsed.toISOString().slice(0, 10) !== value) {
@@ -14,7 +16,7 @@ function assertDate(value: string): void {
   }
 }
 
-export function amountToCents(input: ConnectorTransactionInput): number {
+export function amountToCents(input: AmountInput): number {
   if (typeof input.amountCents === 'number') {
     if (!Number.isInteger(input.amountCents)) throw new Error('amountCents must be an integer.');
     return input.amountCents;
@@ -39,7 +41,7 @@ function findCategoryId(categories: Category[], input: ConnectorTransactionInput
   return match.id;
 }
 
-function importedId(input: ConnectorTransactionInput, sourcePrefix: string): string {
+export function sourceImportedId(input: ImportedIdInput, sourcePrefix: string): string {
   if (input.importedId) return input.importedId;
   if (input.id) return `${sourcePrefix}:${input.id}`;
   if (input.rawSourceId) return `${sourcePrefix}:${input.rawSourceId}`;
@@ -68,7 +70,7 @@ export function normalizeTransactions(args: {
       imported_payee: input.importedPayee ?? input.description ?? payeeName,
       category: findCategoryId(args.categories, input),
       notes: input.notes,
-      imported_id: importedId(input, args.sourcePrefix),
+      imported_id: sourceImportedId(input, args.sourcePrefix),
       cleared: input.cleared,
       forceAddTransaction: input.forceAdd ? true : undefined
     }) as ActualImportTransaction;

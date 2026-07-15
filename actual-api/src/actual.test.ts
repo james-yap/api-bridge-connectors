@@ -20,7 +20,7 @@ const actualApi = vi.hoisted(() => ({
 
 vi.mock('@actual-app/api', () => actualApi);
 
-const { listTransactions, withActual } = await import('./actual.js');
+const { findTransferPayee, listTransactions, withActual } = await import('./actual.js');
 
 function configFor(dataDir: string): ActualConfig {
   return {
@@ -139,5 +139,23 @@ describe('listTransactions', () => {
 
     expect(transaction.payeeName).toBeNull();
     expect(transaction.subtransactions?.[0].payeeName).toBe('Htsp Fredericton Nb');
+  });
+});
+
+describe('findTransferPayee', () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
+  test('returns the special payee that targets the requested account', async () => {
+    actualApi.getPayees.mockResolvedValueOnce([
+      { id: 'ordinary', name: 'Ordinary Payee', transfer_acct: null },
+      { id: 'transfer-destination', name: 'Destination', transfer_acct: 'acct-destination' },
+    ]);
+
+    await expect(findTransferPayee('acct-destination')).resolves.toMatchObject({
+      id: 'transfer-destination',
+      transfer_acct: 'acct-destination',
+    });
   });
 });

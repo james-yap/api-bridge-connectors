@@ -54,3 +54,21 @@ Fields:
 4. Inspect Actual preview result.
 5. Commit only after validation.
 6. Confirm audit event was written.
+
+## Transfer input
+
+`import-transfers` creates a linked pair between two tracked Actual accounts. The JSON input is an array; `amount` and `amountCents` must be positive because `--from-account` and `--to-account` establish direction.
+
+```json
+[
+  {
+    "date": "2026-07-08",
+    "amount": 500,
+    "description": "Free Interac E-Transfer",
+    "importedId": "bank:statement:2026-07-08:50000",
+    "cleared": true
+  }
+]
+```
+
+The command stores the stable imported ID on the source leg, asks Actual to generate the linked destination leg, validates the pair after commit, and writes an audit event. It never assigns a budget category to the transfer.

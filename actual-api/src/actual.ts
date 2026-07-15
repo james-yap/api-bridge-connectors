@@ -81,6 +81,12 @@ export async function listCategories(): Promise<Category[]> {
   return (await api.getCategories({})) as Category[];
 }
 
+export async function findTransferPayee(targetAccountId: string): Promise<ActualPayee> {
+  const payee = (await api.getPayees()).find(item => item.transfer_acct === targetAccountId);
+  if (!payee) throw new Error(`No transfer payee exists for Actual account ${targetAccountId}.`);
+  return payee;
+}
+
 function enrichTransactionPayee(
   transaction: ActualTransaction,
   payeeNames: ReadonlyMap<ActualPayee['id'], ActualPayee['name']>,

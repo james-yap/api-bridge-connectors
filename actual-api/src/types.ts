@@ -24,6 +24,18 @@ export type ConnectorTransactionInput = {
   rawSourceId?: string;
 };
 
+export type ConnectorTransferInput = {
+  date: string;
+  amount?: number;
+  amountCents?: number;
+  description?: string;
+  notes?: string;
+  importedId?: string;
+  id?: string;
+  rawSourceId?: string;
+  cleared?: boolean;
+};
+
 export type ActualImportTransaction = {
   account: string;
   date: string;
@@ -35,6 +47,16 @@ export type ActualImportTransaction = {
   imported_id: string;
   cleared?: boolean;
   forceAddTransaction?: boolean;
+};
+
+export type ActualTransferTransaction = {
+  date: string;
+  amount: number;
+  payee: string;
+  imported_payee: string;
+  notes?: string;
+  imported_id: string;
+  cleared: boolean;
 };
 
 export type ImportMode = 'dry-run' | 'commit';
