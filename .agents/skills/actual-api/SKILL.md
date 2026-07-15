@@ -17,6 +17,13 @@ Use this skill from the `api-bridge-connectors` repo when a task needs Actual Bu
 - Use per-transaction `forceAdd: true` only when an authoritative source confirms a distinct row and a dry run shows Actual's fuzzy matcher would otherwise ignore it.
 - Treat audit logs as local private state. Do not commit them.
 
+## Read-only SQLite diagnostics
+
+- Use the API connector for normal reads and all writes. Direct SQLite access is diagnostic-only and requires explicit user authorization; open the database with `-readonly` and set `PRAGMA query_only = ON`.
+- Actual's `transactions.description` is a payee ID in the materialized budget database, not the displayed payee text. To reproduce a GUI payee filter, join `payees` on `payees.id = transactions.description` and filter `payees.name`.
+- Exclude deleted rows from both tables: `transactions.tombstone = 0` and `payees.tombstone = 0`. Do not total raw `imported_description` matches alone: it can miss transactions whose displayed payee was normalized after import.
+- For the query pattern and date/amount conventions, read `docs/actual-sqlite-reference.md` from the repo root.
+
 ## Connector Evolution
 
 - When the connector needs a patch to complete the task safely, make the patch directly after normal scope, secret, and validation checks; do not stop for confirmation solely because the connector is evolving.
