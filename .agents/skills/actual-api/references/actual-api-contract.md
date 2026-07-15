@@ -18,6 +18,10 @@ Optional:
 
 Use 1Password CLI or another secret manager to inject these variables when possible. For local bootstrap, the connector also loads `.env` from the repo root or `actual-api/`; exported environment variables take precedence. Do not pass passwords on the command line.
 
+## Transaction reads
+
+`transactions` resolves Actual payee IDs and adds `payeeName` to each returned transaction and subtransaction. Use `--payee-contains <text>` for case-insensitive filtering against those normalized names; raw `imported_payee` text is not equivalent to the GUI payee filter.
+
 ## Import input
 
 `import-transactions` accepts a JSON array:

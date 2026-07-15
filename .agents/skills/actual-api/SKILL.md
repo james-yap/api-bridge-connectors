@@ -24,6 +24,11 @@ Use this skill from the `api-bridge-connectors` repo when a task needs Actual Bu
 - Exclude deleted rows from both tables: `transactions.tombstone = 0` and `payees.tombstone = 0`. Do not total raw `imported_description` matches alone: it can miss transactions whose displayed payee was normalized after import.
 - For the query pattern and date/amount conventions, read `docs/actual-sqlite-reference.md` from the repo root.
 
+## Transaction reads
+
+- The `transactions` command returns a normalized `payeeName` alongside Actual's payee ID. Use `payeeName`, not `imported_payee`, when reproducing a GUI payee search.
+- Prefer `--payee-contains <text>` for case-insensitive GUI-equivalent payee filtering. The filter also matches enriched split subtransactions.
+
 ## Connector Evolution
 
 - When the connector needs a patch to complete the task safely, make the patch directly after normal scope, secret, and validation checks; do not stop for confirmation solely because the connector is evolving.
@@ -39,7 +44,7 @@ Common commands:
 ```bash
 npm --workspace actual-api run cli -- accounts
 npm --workspace actual-api run cli -- categories
-npm --workspace actual-api run cli -- transactions --account "<account>" --start YYYY-MM-DD --end YYYY-MM-DD
+npm --workspace actual-api run cli -- transactions --account "<account>" --start YYYY-MM-DD --end YYYY-MM-DD [--payee-contains "<text>"]
 npm --workspace actual-api run cli -- import-transactions --account "<account>" --file transactions.json --dry-run
 npm --workspace actual-api run cli -- import-transactions --account "<account>" --file transactions.json --commit
 ```

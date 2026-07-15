@@ -1,7 +1,14 @@
 #!/usr/bin/env node
 import { appendAuditEvent, verifyAuditFile } from './audit.js';
 import { getString, hasFlag, parseArgs, requireString } from './args.js';
-import { api, listAccounts, listCategories, resolveAccount, withActual } from './actual.js';
+import {
+  api,
+  listAccounts,
+  listCategories,
+  listTransactions,
+  resolveAccount,
+  withActual
+} from './actual.js';
 import { loadActualConfig, redactedConfig } from './config.js';
 import { hashJson } from './hash.js';
 import { asTransactionArray, printJson, readJsonFileOrStdin } from './io.js';
@@ -14,7 +21,7 @@ function usage(): string {
     '  config-check',
     '  accounts [--include-closed]',
     '  categories',
-    '  transactions --account <id-or-name> --start YYYY-MM-DD --end YYYY-MM-DD',
+    '  transactions --account <id-or-name> --start YYYY-MM-DD --end YYYY-MM-DD [--payee-contains <text>]',
     '  import-transactions --account <id-or-name> --file <path|-> [--dry-run|--commit] [--source-prefix value] [--reimport-deleted] [--uncleared]',
     '  audit-verify --file <audit-jsonl>'
   ].join('\n');
@@ -57,9 +64,12 @@ async function run(): Promise<void> {
     const account = requireString(flags, 'account');
     const start = requireString(flags, 'start');
     const end = requireString(flags, 'end');
+    const payeeContains = flags.has('payee-contains')
+      ? requireString(flags, 'payee-contains')
+      : undefined;
     await withActual(config, async () => {
       const resolved = await resolveAccount(account);
-      printJson(await api.getTransactions(resolved.id, start, end));
+      printJson(await listTransactions({ accountId: resolved.id, start, end, payeeContains }));
     }, false);
     return;
   }
@@ -164,4 +174,3 @@ run().catch(error => {
   process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
   process.exitCode = error instanceof Error && error.message.startsWith('Unknown command') ? 2 : 1;
 });
-

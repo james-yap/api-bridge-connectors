@@ -7,6 +7,13 @@ import { sha256 } from './hash.js';
 
 type Account = { id: string; name: string; closed?: number | boolean };
 type Category = { id: string; name: string; hidden?: boolean };
+type ActualTransaction = Awaited<ReturnType<typeof api.getTransactions>>[number];
+type ActualPayee = Awaited<ReturnType<typeof api.getPayees>>[number];
+
+export type TransactionWithPayeeName = Omit<ActualTransaction, 'subtransactions'> & {
+  payeeName: string | null;
+  subtransactions?: TransactionWithPayeeName[];
+};
 
 async function acquireLock(config: ActualConfig): Promise<() => Promise<void>> {
   const lockDir = path.join(config.dataDir, '..', 'locks');
@@ -72,6 +79,44 @@ export async function listAccounts(includeClosed: boolean): Promise<Account[]> {
 
 export async function listCategories(): Promise<Category[]> {
   return (await api.getCategories({})) as Category[];
+}
+
+function enrichTransactionPayee(
+  transaction: ActualTransaction,
+  payeeNames: ReadonlyMap<ActualPayee['id'], ActualPayee['name']>,
+): TransactionWithPayeeName {
+  const { subtransactions, ...fields } = transaction;
+  return {
+    ...fields,
+    payeeName: transaction.payee ? (payeeNames.get(transaction.payee) ?? null) : null,
+    ...(subtransactions
+      ? { subtransactions: subtransactions.map(item => enrichTransactionPayee(item, payeeNames)) }
+      : {}),
+  };
+}
+
+function matchesPayeeName(transaction: TransactionWithPayeeName, search: string): boolean {
+  return (
+    Boolean(transaction.payeeName?.toLowerCase().includes(search)) ||
+    Boolean(transaction.subtransactions?.some(item => matchesPayeeName(item, search)))
+  );
+}
+
+export async function listTransactions(args: {
+  accountId: string;
+  start: string;
+  end: string;
+  payeeContains?: string;
+}): Promise<TransactionWithPayeeName[]> {
+  const transactions = await api.getTransactions(args.accountId, args.start, args.end);
+  const payees = await api.getPayees();
+  const payeeNames = new Map(payees.map(payee => [payee.id, payee.name]));
+  const enriched = transactions.map(transaction => enrichTransactionPayee(transaction, payeeNames));
+
+  if (args.payeeContains === undefined) return enriched;
+  const search = args.payeeContains.trim().toLowerCase();
+  if (!search) throw new Error('--payee-contains needs a non-empty value.');
+  return enriched.filter(transaction => matchesPayeeName(transaction, search));
 }
 
 export { api };

@@ -1,6 +1,6 @@
 # Actual SQLite Diagnostics
 
-Use this only for an explicitly authorized, read-only diagnostic. Routine reads and every write belong on the `actual-api` connector.
+Use this only for an explicitly authorized, read-only diagnostic. Routine reads and every write belong on the `actual-api` connector. For GUI-equivalent payee matching through the API, use `transactions --payee-contains <text>`; returned rows include `payeeName`.
 
 Open the budget with `sqlite3 -readonly` and issue `PRAGMA query_only = ON` before querying.
 
