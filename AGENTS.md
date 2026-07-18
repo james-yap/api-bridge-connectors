@@ -26,6 +26,24 @@ This repo hosts public, provider-agnostic connector CLIs for LLM agents. Keep co
 - Keep runtime files outside the repo or under ignored `.runtime/`.
 - Use `@actual-app/api` for Actual Budget. Actual does not expose a REST API.
 
+## Hermes skill setup
+
+The repo-local Actual connector skill is the source of truth at `.agents/skills/actual-api/`. On a Hermes workstation, register the repository's skill root as an external skill directory instead of copying or symlinking individual skills.
+
+Edit the active profile's Hermes configuration (`hermes config edit`) and add:
+
+```yaml
+skills:
+  external_dirs:
+    - /absolute/path/to/api-bridge-connectors/.agents/skills
+```
+
+- Point `external_dirs` at `.agents/skills/`, not the individual `actual-api/` directory, so future repo-local skills are discovered automatically.
+- External skills remain editable in place; Hermes skill-management updates modify the repository source directly when it is writable.
+- If the same skill name also exists under the profile's local `skills/` directory, the local skill takes precedence. Remove stale copies or symlinks that would shadow the repository version.
+- After adding or changing the external directory, start a new Hermes session or run `/reload-skills` followed by `/reset` so skill discovery refreshes.
+- Before Actual work, load the `actual-api` skill and follow its auth, dry-run, stable-ID, audit, and connector-evolution rules.
+
 ## Actual connector safety
 
 - Use `importTransactions` for routine transaction sync because it applies Actual reconciliation and supports `dryRun`.
